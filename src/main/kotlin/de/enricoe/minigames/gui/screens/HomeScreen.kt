@@ -1,6 +1,8 @@
 package de.enricoe.minigames.gui.screens
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -33,18 +35,19 @@ import compose.icons.fontawesomeicons.solid.GrinTears
 import compose.icons.fontawesomeicons.solid.SortAlphaDown
 import compose.icons.fontawesomeicons.solid.User
 import de.enricoe.minigames.game.Game
-import de.enricoe.minigames.game.allGames
+import de.enricoe.minigames.game.GameProperties
+import de.enricoe.minigames.game.gameOverview
+import de.enricoe.minigames.game.games.tictactoe.TicTacToe
 import de.enricoe.minigames.gui.Application.blurBackground
 import de.enricoe.minigames.gui.utils.colors.ContentColor
 import de.enricoe.minigames.gui.utils.colors.DefaultTextColor
-import de.enricoe.minigames.gui.utils.colors.add
 import de.enricoe.minigames.gui.utils.colors.colorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-var openGame = mutableStateOf<Game?>(null)
+var openGame by mutableStateOf<Game?>(null)
 
 @Composable
 fun HomeScreen() = Box(Modifier.fillMaxSize(), Alignment.Center) {
@@ -125,13 +128,18 @@ fun HomeScreen() = Box(Modifier.fillMaxSize(), Alignment.Center) {
                     userScrollEnabled = false,
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    items(allGames.filter { game ->
-                        if (filter.isLetter()) game.properties.name.uppercase().first() == filter
-                        else game.properties.maxPlayers == filter.digitToInt()
-                    }.filter { game ->
-                        game.properties.name.contains(searchTerm, true)
-                    }.sortedBy { game -> game.properties.name.lowercase() }) { game ->
-                        GameCard(game)
+                    items(
+                        gameOverview
+                            .filter { properties ->
+                                if (filter.isLetter()) properties.name.uppercase().first() == filter
+                                else properties.maxPlayers == filter.digitToInt()
+                            }.filter { properties ->
+                                properties.name.contains(searchTerm, true)
+                            }.sortedBy { properties ->
+                                properties.name.lowercase()
+                            }
+                    ) { properties ->
+                        GameCard(properties)
                     }
                 }
             }
@@ -146,14 +154,13 @@ private enum class GameOrder(val icon: ImageVector, val displayName: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GameCard(game: Game) {
-    val properties = game.properties
+private fun GameCard(properties: GameProperties) {
     ElevatedButton(
         onClick = {
             CoroutineScope(Dispatchers.IO).launch {
-                blurBackground.value = true
+                blurBackground = true
                 delay(250)
-                openGame.value = game
+                TicTacToe().apply { start() }
             }
         },
         modifier = Modifier.width(272.dp).height(448.dp),
@@ -182,68 +189,51 @@ private fun GameCard(game: Game) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActiveGameCard(state: WindowState) {
-    // Background
     AnimatedVisibility(
-        visible = blurBackground.value,
-        enter = scaleIn() + fadeIn(),
-        exit = scaleOut() + fadeOut(),
+        visible = openGame != null,
+        enter = slideInVertically(initialOffsetY = { maxHeight -> maxHeight }),
+        exit = slideOutVertically(targetOffsetY = { maxHeight -> maxHeight }),
     ) {
-        Box(
+        ElevatedCard(
             Modifier
-                .fillMaxSize()
-                .background(colorScheme().background.add(-0.09f, -0.09f, -0.09f, -0.15f)),
-            contentAlignment = Alignment.Center
+                .width(state.size.width / 6 * 5)
+                .height(state.size.height / 6 * 5)
+                .clip(RoundedCornerShape(12.dp))
         ) {
-            // Game
-            AnimatedVisibility(
-                visible = openGame.value != null,
-                enter = slideInVertically(initialOffsetY = { maxHeight -> maxHeight }),
-                exit = slideOutVertically(targetOffsetY = { maxHeight -> maxHeight }),
-            ) {
-                ElevatedCard(
-                    Modifier
-                        .width(state.size.width / 6 * 5)
-                        .height(state.size.height / 6 * 5)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    openGame.value?.let { game ->
-                        val properties = game.properties
-                        Box(Modifier.fillMaxSize().padding(8.dp), contentAlignment = Alignment.TopEnd) {
-                            FloatingActionButton({
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    openGame.value = null
-                                    delay(250)
-                                    blurBackground.value = false
-                                    game.reset()
-                                }
-                            }) {
-                                Icon(Icons.Default.Close, "Close", Modifier.size(32.dp))
-                            }
+            openGame?.let { game ->
+                Box(Modifier.fillMaxSize().padding(8.dp), contentAlignment = Alignment.TopEnd) {
+                    FloatingActionButton({
+                        CoroutineScope(Dispatchers.IO).launch {
+                            openGame = null
+                            delay(250)
+                            blurBackground = false
+                        }
+                    }) {
+                        Icon(Icons.Default.Close, "Close", Modifier.size(32.dp))
+                    }
 
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                                Box(
-                                    Modifier.fillMaxSize().padding(12.dp),
-                                    contentAlignment = Alignment.TopCenter
-                                ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Divider(Modifier.width(128.dp).padding(top = 1.dp))
-                                        Text(
-                                            properties.name,
-                                            color = colorScheme().primary,
-                                            fontSize = 22.sp,
-                                            fontWeight = FontWeight.ExtraBold
-                                        )
-                                        Divider(Modifier.width(192.dp).padding(top = 2.dp, bottom = 3.dp))
-                                        game.drawHeader()
-                                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                            Column {
-                                                game.drawGame()
-                                                game.drawFooter()
-                                            }
-                                        }
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                        Box(
+                            Modifier.fillMaxSize().padding(12.dp),
+                            contentAlignment = Alignment.TopCenter
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Divider(Modifier.width(128.dp).padding(top = 1.dp))
+                                Text(
+                                    game.properties.name,
+                                    color = colorScheme().primary,
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                                Divider(Modifier.width(192.dp).padding(top = 2.dp, bottom = 3.dp))
+                                game.drawHeader()
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Column {
+                                        game.drawGame()
+                                        game.drawFooter()
                                     }
                                 }
                             }

@@ -25,30 +25,34 @@ import compose.icons.fontawesomeicons.solid.Table
 import de.enricoe.minigames.game.Game
 import de.enricoe.minigames.game.GameProperties
 import de.enricoe.minigames.game.player.*
+import de.enricoe.minigames.gui.Application
 import de.enricoe.minigames.gui.utils.colors.colorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val TicTacToeProperties = GameProperties(
+val TicTacToeProperties = GameProperties(
     "TicTacToe",
     "TicTacToe is a game for two players who take turns marking the spaces in a three-by-three grid with X or O. The player who succeeds in placing three of their marks in a line is the winner",
     2,
     FontAwesomeIcons.Solid.Table
 )
 
-object TicTacToe: Game(TicTacToeProperties), TwoPlayers, AllowAI {
-    override val playerOne: HumanPlayer = HumanPlayer("Player One")
-    override val playerTwo: Player = AIPlayer()
-    var currentPlayer: MutableState<Player> = mutableStateOf(playerOne)
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+class TicTacToe: Game(), TwoPlayers, AllowAI {
+    override val properties = TicTacToeProperties
+    override var playerOne: HumanPlayer = Application.players.filterIsInstance<HumanPlayer>().first()
+    override var playerTwo: Player = Application.players.getOrNull(1) ?: AIPlayer()
+    override var ai: TicTacToeAI = TicTacToeAI(this)
+    var currentPlayer by mutableStateOf<Player>(playerOne)
+
     val slots = mutableStateMapOf<TicTacToeSlot, Player>()
-    val availableSlots get() = TicTacToeSlot.AllSlots.filter { slot -> slot !in slots }
     val winningSlots = mutableStateListOf<TicTacToeSlot>()
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     fun mark(slot: TicTacToeSlot, forced: Boolean = false) {
-        var player = currentPlayer.value
+        var player = currentPlayer
         if (player is AIPlayer && !forced) return
         if (slot in slots) return
 
@@ -61,11 +65,11 @@ object TicTacToe: Game(TicTacToeProperties), TwoPlayers, AllowAI {
         }
 
         if (checkForEnd()) {
-            isRunning.value = false
+            isRunning = false
             return
         }
         player = if (player == playerOne) playerTwo else playerOne
-        currentPlayer.value = player
+        currentPlayer = player
 
         if (player is AIPlayer) {
             ai.currentBoard = slots.toMutableMap()
@@ -75,9 +79,6 @@ object TicTacToe: Game(TicTacToeProperties), TwoPlayers, AllowAI {
             }
         }
     }
-
-    override val ai = TicTacToeAI
-
     private fun checkForWinner(slot: TicTacToeSlot): List<Pair<TicTacToeRow, Player>>? {
         val rows = TicTacToeRow.getBySlot(slot).mapNotNull { row ->
             val winner = checkRow(row)
@@ -94,29 +95,21 @@ object TicTacToe: Game(TicTacToeProperties), TwoPlayers, AllowAI {
 
     private fun checkForEnd(): Boolean = TicTacToeSlot.AllSlots.none { slot -> slot !in slots } || winner != null
 
-    override fun reset() {
-        slots.clear()
-        winningSlots.clear()
-        currentPlayer.value = playerOne
-        isRunning.value = true
-        winner = null
-    }
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun drawHeader() {
         val size by animateIntAsState(
-            targetValue = if (isRunning.value) 16 else 27,
+            targetValue = if (isRunning) 16 else 27,
             animationSpec = tween(durationMillis = 200)
         )
         val padding by animateIntAsState(
-            targetValue = if (isRunning.value) 24 else 196,
+            targetValue = if (isRunning) 24 else 196,
             animationSpec = tween(durationMillis = 300)
         )
         ElevatedCard(Modifier.padding(top = padding.dp)) {
             Box(Modifier.padding(vertical = 24.dp, horizontal = 32.dp), contentAlignment = Alignment.Center) {
-                if (isRunning.value)
-                    Text("${currentPlayer.value.name}'s turn", fontSize = size.sp)
+                if (isRunning)
+                    Text("${currentPlayer.name}'s turn", fontSize = size.sp)
                 else {
                     Text("${winner?.name ?: "Nobody"} won", fontSize = size.sp)
                 }
@@ -134,7 +127,7 @@ object TicTacToe: Game(TicTacToeProperties), TwoPlayers, AllowAI {
                             targetValue = if (slot in winningSlots) colorScheme().inversePrimary else colorScheme().surfaceVariant,
                             animationSpec = tween(durationMillis = 450)
                         )
-                        Surface(Modifier.size(128.dp).clickable { if (isRunning.value) mark(slot) }, color = color) {
+                        Surface(Modifier.size(128.dp).clickable { if (isRunning) mark(slot) }, color = color) {
                             val player = slots[slot]
                             val size by animateIntAsState(
                                 targetValue = if (player == null) 0 else 96,

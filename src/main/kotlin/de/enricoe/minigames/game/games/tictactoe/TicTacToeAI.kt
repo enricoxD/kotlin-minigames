@@ -8,16 +8,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 // This AI doesn't play the optional way so the player has a chance to win
-object TicTacToeAI : GameAI<TicTacToe>(TicTacToe) {
+class TicTacToeAI(ticTacToe: TicTacToe) : GameAI<TicTacToe>(ticTacToe) {
     private val humanPlayer = game.playerOne
     private val aiPlayer = game.playerTwo
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    var currentBoard = game.slots.toMutableMap()
+    lateinit var currentBoard: MutableMap<TicTacToeSlot, Player>
     private val availableSlots get() = TicTacToeSlot.AllSlots.filter { slot -> slot !in currentBoard }
 
-
-        override fun run(aiPlayer: AIPlayer) {
+    override fun run(aiPlayer: AIPlayer) {
         coroutineScope.launch {
+            currentBoard = game.slots.toMutableMap()
             val slot = getBestMove()
             game.mark(slot, true)
         }

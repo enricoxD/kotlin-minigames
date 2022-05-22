@@ -1,11 +1,14 @@
 package de.enricoe.minigames.gui
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -17,25 +20,28 @@ import androidx.compose.ui.window.rememberWindowState
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.*
+import de.enricoe.minigames.game.player.Player
 import de.enricoe.minigames.game.registerGames
 import de.enricoe.minigames.gui.screens.ActiveGameCard
 import de.enricoe.minigames.gui.screens.HomeScreen
+import de.enricoe.minigames.gui.utils.colors.add
 
 object Application {
-    var isDarkMode = mutableStateOf(false)
-    var blurBackground = mutableStateOf(false)
+    val players = mutableStateListOf<Player>()
+    var isDarkMode by mutableStateOf(false)
+    var blurBackground by mutableStateOf(true)
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 fun main() = application {
     val state = rememberWindowState(placement = WindowPlacement.Maximized)
-    var isDarkMode by remember { Application.isDarkMode }
-    val blurBackground by remember { Application.blurBackground }
+    val blurBackground = Application.blurBackground
 
     registerGames()
 
-    MaterialTheme(if (isDarkMode) darkColorScheme() else lightColorScheme()) {
+    MaterialTheme(if (Application.isDarkMode) darkColorScheme() else lightColorScheme()) {
         Window(
-            title = "Benutzerverwaltung",
+            title = "Minigames",
             onCloseRequest = { exitApplication() },
             state = state
         ) {
@@ -54,10 +60,10 @@ fun main() = application {
                         }
                         Spacer(Modifier.weight(1f))
                         IconButton(
-                            onClick = { isDarkMode = !isDarkMode },
+                            onClick = { Application.isDarkMode = !Application.isDarkMode },
                         ) {
                             Icon(
-                                if (isDarkMode) FontAwesomeIcons.Solid.Sun else FontAwesomeIcons.Solid.Moon,
+                                if (Application.isDarkMode) FontAwesomeIcons.Solid.Sun else FontAwesomeIcons.Solid.Moon,
                                 "toggle theme",
                                 Modifier.size(32.dp)
                             )
@@ -76,7 +82,22 @@ fun main() = application {
                 }
             }
 
-            ActiveGameCard(state)
+            AnimatedVisibility(
+                visible = blurBackground,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut(),
+            ) {
+                val blur by animateFloatAsState(if (blurBackground) -0.15f else 0.0f, tween(250))
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(colorScheme.background.add(-0.09f, -0.09f, -0.09f, blur)),
+                    contentAlignment = Alignment.Center
+                ) {
+                        UserLoginCard(state)
+                        ActiveGameCard(state)
+                }
+            }
         }
     }
 }

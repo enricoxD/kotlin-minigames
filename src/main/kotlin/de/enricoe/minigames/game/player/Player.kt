@@ -2,7 +2,7 @@ package de.enricoe.minigames.game.player
 
 import de.enricoe.minigames.game.GameAI
 
-open class Player(val name: String)
+abstract class Player(val name: String)
 
 interface OnePlayer {
     val playerOne: HumanPlayer

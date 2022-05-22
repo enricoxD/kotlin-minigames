@@ -1,25 +1,28 @@
 package de.enricoe.minigames.game
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import de.enricoe.minigames.game.games.tictactoe.TicTacToe
+import de.enricoe.minigames.game.games.tictactoe.TicTacToeProperties
 import de.enricoe.minigames.game.player.AIPlayer
 import de.enricoe.minigames.game.player.HumanPlayer
 import de.enricoe.minigames.game.player.Player
+import de.enricoe.minigames.gui.screens.openGame
 
-lateinit var allGames: List<Game>
+lateinit var gameOverview: MutableList<GameProperties>
 
-abstract class Game(val properties: GameProperties) {
+abstract class Game {
+    abstract val properties: GameProperties
     open var winner: Player? = null
-    open var isRunning: MutableState<Boolean> = mutableStateOf(true)
+    open var isRunning by mutableStateOf(true)
 
     @Composable open fun drawHeader() {}
     @Composable abstract fun drawGame()
     @Composable open fun drawFooter() {}
 
-    abstract fun reset()
+    fun start() {
+        openGame = this
+    }
 }
 
 class GameProperties(
@@ -31,7 +34,7 @@ class GameProperties(
 )
 
 fun registerGames() {
-    allGames = listOf(
-        TicTacToe,
+    gameOverview = mutableListOf(
+        TicTacToeProperties,
     )
 }

@@ -13,7 +13,7 @@ fun ContentColor() = LocalContentColor.current
 
 @Composable
 fun DefaultTextColor() =
-    if (Application.isDarkMode.value) Color(0.9019608F, 0.88235295F, 0.8980392F)
+    if (Application.isDarkMode) Color(0.9019608F, 0.88235295F, 0.8980392F)
     else Color(0.10980392F, 0.105882354F, 0.12156863F)
 
 @Composable
