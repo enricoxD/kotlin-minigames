@@ -206,6 +206,7 @@ fun ActiveGameCard(state: WindowState) {
                 Box(Modifier.fillMaxSize().padding(8.dp), contentAlignment = Alignment.TopEnd) {
                     FloatingActionButton({
                         CoroutineScope(Dispatchers.IO).launch {
+                            openGame?.isRunning = false
                             openGame = null
                             delay(250)
                             blurBackground = false

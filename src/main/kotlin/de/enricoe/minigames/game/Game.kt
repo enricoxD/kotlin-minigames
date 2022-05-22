@@ -1,6 +1,9 @@
 package de.enricoe.minigames.game
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import de.enricoe.minigames.game.games.tictactoe.TicTacToeProperties
 import de.enricoe.minigames.game.player.Player

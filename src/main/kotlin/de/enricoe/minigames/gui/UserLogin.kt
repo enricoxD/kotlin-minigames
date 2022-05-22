@@ -2,7 +2,6 @@ package de.enricoe.minigames.gui
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,7 +17,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.WindowState
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.Check
 import compose.icons.fontawesomeicons.solid.CheckCircle
 import compose.icons.fontawesomeicons.solid.User
 import de.enricoe.minigames.game.player.HumanPlayer
@@ -64,7 +62,7 @@ fun UserLoginCard(state: WindowState) {
                                 fontSize = 18.sp,
                                 color = ContentColor()
                             ),
-                            placeholder = { "Username" },
+                            placeholder = { Text("Username") },
                             singleLine = true
                         )
                         Spacer(Modifier.weight(1f))
@@ -110,7 +108,7 @@ fun UserLoginCard(state: WindowState) {
                 val rotation by animateFloatAsState(if (successfulLoginIcon) 360f else 0f, tween(1100))
 
                 Box(
-                    Modifier.fillMaxSize().background(Color.DarkGray),
+                    Modifier.fillMaxSize().background(Color.DarkGray.copy(alpha = 0.85f)),
                     contentAlignment = Alignment.Center
                 ) {
                     AnimatedVisibility(
