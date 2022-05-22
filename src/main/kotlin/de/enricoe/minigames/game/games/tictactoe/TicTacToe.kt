@@ -43,9 +43,9 @@ val TicTacToeProperties = GameProperties(
 
 class TicTacToe: Game(), TwoPlayers, AllowAI {
     override val properties = TicTacToeProperties
-    override var playerOne: HumanPlayer = Application.players.filterIsInstance<HumanPlayer>().first()
-    override var playerTwo: Player = Application.players.getOrNull(1) ?: AIPlayer()
-    override var ai: TicTacToeAI = TicTacToeAI(this)
+    override var playerOne = Application.players.filterIsInstance<HumanPlayer>().first()
+    override var playerTwo = Application.players.getOrNull(1) ?: AIPlayer()
+    override var ai = TicTacToeAI(this)
     var currentPlayer by mutableStateOf<Player>(playerOne)
 
     val slots = mutableStateMapOf<TicTacToeSlot, Player>()

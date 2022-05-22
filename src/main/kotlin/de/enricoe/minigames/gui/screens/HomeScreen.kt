@@ -31,13 +31,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.WindowState
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.GrinTears
 import compose.icons.fontawesomeicons.solid.SortAlphaDown
 import compose.icons.fontawesomeicons.solid.User
 import de.enricoe.minigames.game.Game
 import de.enricoe.minigames.game.GameProperties
-import de.enricoe.minigames.game.gameOverview
-import de.enricoe.minigames.game.games.tictactoe.TicTacToe
+import de.enricoe.minigames.game.allGames
 import de.enricoe.minigames.gui.Application.blurBackground
 import de.enricoe.minigames.gui.utils.colors.ContentColor
 import de.enricoe.minigames.gui.utils.colors.DefaultTextColor
@@ -130,7 +128,7 @@ fun HomeScreen() = Box(Modifier.fillMaxSize(), Alignment.Center) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     items(
-                        gameOverview
+                        allGames
                             .filter { properties ->
                                 if (filter.isLetter()) properties.name.uppercase().first() == filter
                                 else properties.maxPlayers == filter.digitToInt()
@@ -226,7 +224,7 @@ fun ActiveGameCard(state: WindowState) {
                                 Text(
                                     game.properties.name,
                                     color = colorScheme().primary,
-                                    fontSize = 22.sp,
+                                    fontSize = 27.sp,
                                     fontWeight = FontWeight.ExtraBold
                                 )
                                 Divider(Modifier.width(192.dp).padding(top = 2.dp, bottom = 3.dp))

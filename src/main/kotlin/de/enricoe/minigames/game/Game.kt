@@ -2,15 +2,13 @@ package de.enricoe.minigames.game
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import de.enricoe.minigames.game.games.tictactoe.TicTacToe
+import de.enricoe.minigames.game.games.pong.PongProperties
 import de.enricoe.minigames.game.games.tictactoe.TicTacToeProperties
-import de.enricoe.minigames.game.player.AIPlayer
-import de.enricoe.minigames.game.player.HumanPlayer
 import de.enricoe.minigames.game.player.Player
 import de.enricoe.minigames.gui.screens.openGame
 import kotlin.reflect.KClass
 
-lateinit var gameOverview: MutableList<GameProperties>
+lateinit var allGames: MutableList<GameProperties>
 
 abstract class Game {
     abstract val properties: GameProperties
@@ -36,7 +34,8 @@ class GameProperties(
 )
 
 fun registerGames() {
-    gameOverview = mutableListOf(
+    allGames = mutableListOf(
         TicTacToeProperties,
+        PongProperties
     )
 }
