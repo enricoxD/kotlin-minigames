@@ -2,7 +2,6 @@ package de.enricoe.minigames.game
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import de.enricoe.minigames.game.games.pong.PongProperties
 import de.enricoe.minigames.game.games.tictactoe.TicTacToeProperties
 import de.enricoe.minigames.game.player.Player
 import de.enricoe.minigames.gui.screens.openGame
@@ -36,6 +35,5 @@ class GameProperties(
 fun registerGames() {
     allGames = mutableListOf(
         TicTacToeProperties,
-        PongProperties
     )
 }
