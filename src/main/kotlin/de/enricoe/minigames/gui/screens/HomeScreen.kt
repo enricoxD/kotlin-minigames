@@ -46,6 +46,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.reflect.full.createInstance
 
 var openGame by mutableStateOf<Game?>(null)
 
@@ -160,7 +161,7 @@ private fun GameCard(properties: GameProperties) {
             CoroutineScope(Dispatchers.IO).launch {
                 blurBackground = true
                 delay(250)
-                TicTacToe().apply { start() }
+                properties.kclass.createInstance().apply { start() }
             }
         },
         modifier = Modifier.width(272.dp).height(448.dp),
@@ -171,7 +172,7 @@ private fun GameCard(properties: GameProperties) {
             Column {
                 OutlinedCard(Modifier.fillMaxWidth().height(150.dp).padding(6.dp), RoundedCornerShape(8.dp)) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                        Icon(FontAwesomeIcons.Solid.GrinTears, "Icon!")
+                        Icon(properties.icon, "Icon!")
                     }
                 }
 

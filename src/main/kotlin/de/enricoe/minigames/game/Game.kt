@@ -8,6 +8,7 @@ import de.enricoe.minigames.game.player.AIPlayer
 import de.enricoe.minigames.game.player.HumanPlayer
 import de.enricoe.minigames.game.player.Player
 import de.enricoe.minigames.gui.screens.openGame
+import kotlin.reflect.KClass
 
 lateinit var gameOverview: MutableList<GameProperties>
 
@@ -31,6 +32,7 @@ class GameProperties(
     //val imageName: String,
     val maxPlayers: Int,
     val icon: ImageVector,
+    val kclass: KClass<out Game>
 )
 
 fun registerGames() {

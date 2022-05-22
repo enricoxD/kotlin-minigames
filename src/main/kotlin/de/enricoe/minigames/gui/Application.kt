@@ -63,7 +63,7 @@ fun main() = application {
                             onClick = { Application.isDarkMode = !Application.isDarkMode },
                         ) {
                             Icon(
-                                if (Application.isDarkMode) FontAwesomeIcons.Solid.Sun else FontAwesomeIcons.Solid.Moon,
+                                if (Application.isDarkMode) FontAwesomeIcons.Solid.Lightbulb else FontAwesomeIcons.Solid.Moon,
                                 "toggle theme",
                                 Modifier.size(32.dp)
                             )

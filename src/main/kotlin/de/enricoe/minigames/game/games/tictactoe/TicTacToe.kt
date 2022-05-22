@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.CircleNotch
+import compose.icons.fontawesomeicons.solid.GrinTears
 import compose.icons.fontawesomeicons.solid.Table
 import de.enricoe.minigames.game.Game
 import de.enricoe.minigames.game.GameProperties
@@ -36,7 +37,8 @@ val TicTacToeProperties = GameProperties(
     "TicTacToe",
     "TicTacToe is a game for two players who take turns marking the spaces in a three-by-three grid with X or O. The player who succeeds in placing three of their marks in a line is the winner",
     2,
-    FontAwesomeIcons.Solid.Table
+    FontAwesomeIcons.Solid.GrinTears,
+    TicTacToe::class
 )
 
 class TicTacToe: Game(), TwoPlayers, AllowAI {
